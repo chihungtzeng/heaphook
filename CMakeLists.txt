@@ -50,6 +50,8 @@ if(BUILD_TESTING)
 
   test_library(test_preloaded_backtrace src/backtrace_allocator.cpp)
   target_link_options(test_preloaded_backtrace PRIVATE -rdynamic -no-pie -fno-pie)
+
+  test_library(test_preloaded_stockpile src/stockpile_allocator.cpp)
 endif()
 
 add_executable(app src/app.cpp)
@@ -81,6 +83,7 @@ endif()
 
 build_library(original_allocator src/original_allocator.cpp)
 build_library(preloaded_backtrace src/backtrace_allocator.cpp)
+build_library(preloaded_stockpile_allocator src/stockpile_allocator.cpp)
 
 
 # # This is a demonstration.

@@ -15,9 +15,10 @@ $ source install/setup.bash
 ```
 
 ## How to use
-For now, We provide two kinds of the heaphook libraries.
+For now, we provide four kinds of the heaphook libraries.
 - `libpreloaded_heaptrack.so`: Records all the heap allocation/deallocation function calls and generate a log file for visualizing the history of heap consumption.
 - `libpreloaded_tlsf.so`: Replaces all the heap allocation/deallocation with TLSF (Tow-Level Segregated Fit) memory allocator.
+- `libpreloaded_stockpile_allocator.so`: Stockpiles allocated memory in the user space without releasing the memory to the OS. It reduces the burden of handling page faults in the kernel space.
 - `libpreloaded_backtrace.so`: Records all malloc/new function calls with their backtraces where the memory allocations take place.
 
 A typical use case is to utilize `libpreloaded_heaptrack` to grasp the transition and maximum value of heap consumtion of the target process
@@ -59,6 +60,16 @@ As an example, here is what happens when `malloc(1000)` is called when the exist
 
 The added memory pool areas are not contiguous with each other in the virual address space,
 so it is not necessarily enough even if the total size of the added memory pools exceeds the size of the memory allocation request. 
+
+### libpreloaded_stockpile_allocator.so
+
+Use the following command to enable this allocator:
+```
+$ LD_PRELOAD=libpreloaded_stockpile_allocator.so executable
+```
+
+When setting the environment variable STOCKPILE_ALLOCATOR_VERBORSE=1,
+the allocator would print its statistics when it is destroyed.
 
 ### libpreloaded_backtrace.so
 Use the following command to trace the callers:
