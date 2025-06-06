@@ -14,6 +14,8 @@
 
 using namespace heaphook;
 
+constexpr size_t MIN_ADDR_ALIGNMENT = sizeof(void *) * 2;
+
 TEST(alloc_test, valid_size_test) {
   auto test = [](size_t size) {
       char * ptr = reinterpret_cast<char *>(GlobalAllocator::get_instance().alloc(size));
@@ -219,6 +221,7 @@ TEST(integration_test, allocation_test) {
     size_t addr = reinterpret_cast<size_t>(ptr);
     auto it = intervals.lower_bound(std::make_pair(addr, 0));
     EXPECT_TRUE(it != intervals.end());
+    EXPECT_TRUE(addr % MIN_ADDR_ALIGNMENT == 0u);
     intervals.erase(*it);
   }
 }
@@ -234,6 +237,8 @@ TEST(integration_test, multi_thread_test) {
       for (size_t i = 0; i < ALLOCATION_COUNT; i++) {
         auto ptr = malloc(distribution(gen));
         EXPECT_TRUE(ptr != nullptr);
+        size_t addr = reinterpret_cast<size_t>(ptr);
+        EXPECT_TRUE(addr % MIN_ADDR_ALIGNMENT == 0u);
         alloc_ptrs[i] = reinterpret_cast<int *>(ptr);
         *alloc_ptrs[i] = thread_id;
       }

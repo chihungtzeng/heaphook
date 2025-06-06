@@ -48,6 +48,11 @@ if(BUILD_TESTING)
     src/tlsf/tlsf.cpp)
   target_link_libraries(test_preloaded_tlsf tlsf::tlsf)
 
+  test_library(test_preloaded_tlsf_conte
+              src/tlsf_conte.cpp
+              src/tlsf_conte_wrapper.cpp
+              src/tlsf_conte_allocator.cpp)
+
   test_library(test_preloaded_backtrace src/backtrace_allocator.cpp)
   target_link_options(test_preloaded_backtrace PRIVATE -rdynamic -no-pie -fno-pie)
 endif()
@@ -81,6 +86,10 @@ endif()
 
 build_library(original_allocator src/original_allocator.cpp)
 build_library(preloaded_backtrace src/backtrace_allocator.cpp)
+build_library(preloaded_tlsf_conte
+              src/tlsf_conte.cpp
+              src/tlsf_conte_wrapper.cpp
+              src/tlsf_conte_allocator.cpp)
 
 
 # # This is a demonstration.
