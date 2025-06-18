@@ -300,7 +300,7 @@ typedef struct block_header_t {
 
   /* The size of this block, excluding the block header. */
   uint32_t size;
-  uint32_t allocator_index;
+  uint32_t pool_index;
 
   /* Next and previous free blocks. */
   struct block_header_t* next_free;
@@ -365,8 +365,8 @@ static void block_set_size(block_header_t* block, size_t size) {
       size | (oldsize & (block_header_free_bit | block_header_prev_free_bit));
 }
 
-static void block_set_allocator_index(block_header_t* block, uint32_t index) {
-  block->allocator_index = index;
+static void block_set_pool_index(block_header_t* block, uint32_t index) {
+  block->pool_index = index;
 }
 
 static int block_is_last(const block_header_t* block) {
@@ -622,12 +622,12 @@ static block_header_t* block_split(block_header_t* block, size_t size) {
 
   tlsf_assert(block_size(block) == remain_size + size + block_header_overhead);
   block_set_size(remaining, remain_size);
-  block_set_allocator_index(remaining, 0);
+  block_set_pool_index(remaining, 0);
   tlsf_assert(block_size(remaining) >= block_size_min &&
               "block split with invalid size");
 
   block_set_size(block, size);
-  block_set_allocator_index(block, 0);
+  block_set_pool_index(block, 0);
   block_mark_as_free(remaining);
 
   return remaining;
@@ -884,20 +884,20 @@ size_t tlsf_block_size(void* ptr) {
   return size;
 }
 
-int tlsf_block_set_allocator_index(void* ptr, uint32_t index) {
+int tlsf_block_set_pool_index(void* ptr, uint32_t index) {
   if (ptr) {
     block_header_t* block = block_from_ptr(ptr);
-    block_set_allocator_index(block, index);
+    block_set_pool_index(block, index);
   }
   return 0;
 }
 
-uint32_t tlsf_block_get_allocator_index(const void* ptr)
+uint32_t tlsf_block_get_pool_index(const void* ptr)
 {
   uint32_t index = 0;
   if (ptr) {
     const block_header_t* block = block_from_ptr(ptr);
-    index = block->allocator_index;
+    index = block->pool_index;
   }
   return index;
 }

@@ -49,6 +49,8 @@ if(BUILD_TESTING)
   target_link_libraries(test_preloaded_tlsf tlsf::tlsf)
 
   test_library(test_preloaded_tlsf_conte
+              src/o1heap.cpp
+              src/o1heap_wrapper.cpp
               src/tlsf_conte.cpp
               src/tlsf_conte_wrapper.cpp
               src/tlsf_conte_allocator.cpp)
@@ -87,6 +89,8 @@ endif()
 build_library(original_allocator src/original_allocator.cpp)
 build_library(preloaded_backtrace src/backtrace_allocator.cpp)
 build_library(preloaded_tlsf_conte
+              src/o1heap.cpp
+              src/o1heap_wrapper.cpp
               src/tlsf_conte.cpp
               src/tlsf_conte_wrapper.cpp
               src/tlsf_conte_allocator.cpp)
