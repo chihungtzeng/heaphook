@@ -66,8 +66,8 @@ void tlsf_free(tlsf_t tlsf, void * ptr);
 
 /* Returns internal block size, not original request size */
 size_t tlsf_block_size(void * ptr);
-int tlsf_block_set_allocator_index(void * ptr, uint32_t index);
-uint32_t tlsf_block_get_allocator_index(const void * ptr);
+int tlsf_block_set_pool_index(void * ptr, uint32_t index);
+uint32_t tlsf_block_get_pool_index(const void * ptr);
 
 /* Overheads/limits of internal structures. */
 size_t tlsf_size(void);
