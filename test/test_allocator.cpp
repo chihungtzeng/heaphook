@@ -254,5 +254,7 @@ TEST(integration_test, multi_thread_test) {
   for (size_t i = 0; i < ALLOCATION_COUNT; i++) {
     ASSERT_EQ(*alloc_ptrs[0][i], 0);
     ASSERT_EQ(*alloc_ptrs[1][i], 1);
+    //free(alloc_ptrs[0][i]);
+    //free(alloc_ptrs[1][i]);
   }
 }

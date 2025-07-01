@@ -8,6 +8,10 @@
 
 namespace heaphook
 {
+
+// Returned address must be 16-byte aligned in 64-bit systems.
+constexpr size_t MIN_ADDR_ALIGNMENT = sizeof(void *) * 2;
+
 struct MMAPArea
 {
   void * addr;
@@ -18,6 +22,7 @@ class TLSFConteWrapper
 {
 public:
   TLSFConteWrapper();
+  TLSFConteWrapper(size_t init_pool_size);
   ~TLSFConteWrapper();
   int set_init_pool(size_t init_pool_size, void * ptr);
   void * do_alloc(size_t bytes);

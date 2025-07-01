@@ -2,8 +2,6 @@
 
 #include "heaphook/hook_types.hpp"
 
-#include <dlfcn.h>
-#include <malloc.h>
 #include <sys/mman.h>
 #include <unistd.h>
 
@@ -25,26 +23,31 @@ TLSFConteWrapper::TLSFConteWrapper()
   }
 }
 
+TLSFConteWrapper::TLSFConteWrapper(size_t init_pool_size)
+{
+  for (size_t i = 0; i < mmap_areas_.size(); i++) {
+    mmap_areas_[i].addr = nullptr;
+    mmap_areas_[i].length = 0;
+  }
+  void * ptr =
+    mmap(NULL, init_pool_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+  set_init_pool(init_pool_size, ptr);
+}
+
 TLSFConteWrapper::~TLSFConteWrapper()
 {
 #if 0
-  static const free_type original_free = reinterpret_cast<free_type>(dlsym(RTLD_NEXT, "free"));
-
-  // When program exits, mmaped regions are freed automatically.
-  // If we manually munmap these regions, the exit subroutine will umunmap them
-  // again and thus trigger a segmentation fault.
-  std::lock_guard<SpinLock> guard(spinlock_);
-  for (size_t i = 0; i < num_mmap_areas_; i++) {
+  for (size_t i = 0; i < mmap_areas_.size(); i++) {
     if (mmap_areas_[i].addr) {
-      original_free(mmap_areas_[i].addr);
+      munmap(mmap_areas_[i].addr, mmap_areas_[i].length);
       mmap_areas_[i].addr = nullptr;
       mmap_areas_[i].length = 0;
     }
   }
-#endif  
+#endif
 }
 
-int TLSFConteWrapper::set_init_pool(size_t init_pool_size,  void * ptr)
+int TLSFConteWrapper::set_init_pool(size_t init_pool_size, void * ptr)
 {
   if (ptr) {
     memset(ptr, 0, init_pool_size);
@@ -53,8 +56,7 @@ int TLSFConteWrapper::set_init_pool(size_t init_pool_size,  void * ptr)
     mem_pool_ = tlsf_create_with_pool(mmap_areas_[0].addr, mmap_areas_[0].length);
     num_mmap_areas_ = 1;
     return 0;
-  }
-  else {
+  } else {
     fprintf(stderr, "Cannot set pool to nullptr\n");
     return 1;
   }
@@ -77,9 +79,6 @@ void * TLSFConteWrapper::do_alloc(size_t bytes)
       std::lock_guard<SpinLock> guard(spinlock_);
       ptr = tlsf_malloc(mem_pool_, bytes);
     }
-  }
-  if (ptr) {
-    tlsf_block_set_pool_index(ptr, pool_index_);
   }
   return ptr;
 }
@@ -105,10 +104,6 @@ void * TLSFConteWrapper::do_realloc(void * ptr, size_t new_size)
       std::lock_guard<SpinLock> guard(spinlock_);
       new_ptr = tlsf_realloc(mem_pool_, ptr, new_size);
     }
-  }
-
-  if (new_ptr) {
-    tlsf_block_set_pool_index(new_ptr, pool_index_);
   }
   return new_ptr;
 }
@@ -174,12 +169,9 @@ int TLSFConteWrapper::set_pool_index(uint32_t index)
 
 int TLSFConteWrapper::increase_mmap_area()
 {
-  static const malloc_type original_malloc =
-    reinterpret_cast<malloc_type>(dlsym(RTLD_NEXT, "malloc"));
   std::lock_guard<SpinLock> guard(spinlock_);
   const size_t length = mmap_areas_[num_mmap_areas_ - 1].length * 2;
-  // void * ptr = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-  void * ptr = original_malloc(length);
+  void * ptr = mmap(NULL, length, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   if (ptr) {
     memset(ptr, 0, length);
     mmap_areas_[num_mmap_areas_].addr = ptr;

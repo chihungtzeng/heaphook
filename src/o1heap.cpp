@@ -145,8 +145,8 @@ typedef struct FragmentHeader {
   Fragment* next;
   Fragment* prev;
   size_t size;
+  int32_t pool_index;
   uint16_t signature;
-  uint16_t pool_index;
   bool used;
 } FragmentHeader;
 static_assert(sizeof(FragmentHeader) <= O1HEAP_ALIGNMENT,
@@ -512,7 +512,7 @@ size_t o1heapGetBlockSize(void* const pointer) {
   return ret;
 }
 
-int o1heapBlockSetPoolIndex(void* pointer, uint32_t index) {
+int32_t o1heapBlockSetPoolIndex(void* pointer, int32_t index) {
   if (O1HEAP_LIKELY(pointer != NULL)) {
     Fragment* frag = (Fragment*)(void*)(((char*)pointer) - O1HEAP_ALIGNMENT);
     frag->header.pool_index = index;
@@ -520,7 +520,7 @@ int o1heapBlockSetPoolIndex(void* pointer, uint32_t index) {
   return 0;
 }
 
-uint32_t o1heapBlockGetPoolIndex(void* const pointer) {
+int32_t o1heapBlockGetPoolIndex(void* const pointer) {
   if (O1HEAP_LIKELY(pointer != NULL)) {
     Fragment* const frag = (Fragment*)(void*)(((char*)pointer) - O1HEAP_ALIGNMENT);
     return frag->header.pool_index;
