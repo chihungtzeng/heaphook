@@ -40,6 +40,12 @@ if(BUILD_TESTING)
   target_include_directories(test_utils
     PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
+  ament_add_gtest(test_freed_pointers test/test_freed_pointers.cpp
+              src/tlsf_conte.cpp
+              src/tlsf_conte_wrapper.cpp)
+  target_include_directories(test_freed_pointers
+    PRIVATE ${PROJECT_SOURCE_DIR}/include)
+
   # allocator test
   test_library(test_original_allocator
     src/original_allocator.cpp)
@@ -48,12 +54,12 @@ if(BUILD_TESTING)
     src/tlsf/tlsf.cpp)
   target_link_libraries(test_preloaded_tlsf tlsf::tlsf)
 
-  test_library(test_preloaded_tlsf_conte
+  test_library(test_preloaded_thread_local
               src/o1heap.cpp
               src/o1heap_wrapper.cpp
               src/tlsf_conte.cpp
               src/tlsf_conte_wrapper.cpp
-              src/tlsf_conte_allocator.cpp)
+              src/thread_local_allocator.cpp)
 
   test_library(test_preloaded_backtrace src/backtrace_allocator.cpp)
   target_link_options(test_preloaded_backtrace PRIVATE -rdynamic -no-pie -fno-pie)
@@ -88,12 +94,12 @@ endif()
 
 build_library(original_allocator src/original_allocator.cpp)
 build_library(preloaded_backtrace src/backtrace_allocator.cpp)
-build_library(preloaded_tlsf_conte
+build_library(preloaded_thread_local
               src/o1heap.cpp
               src/o1heap_wrapper.cpp
               src/tlsf_conte.cpp
               src/tlsf_conte_wrapper.cpp
-              src/tlsf_conte_allocator.cpp)
+              src/thread_local_allocator.cpp)
 
 
 # # This is a demonstration.

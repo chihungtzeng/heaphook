@@ -113,8 +113,8 @@ void o1heapFree(O1HeapInstance* const handle, void* const pointer);
 size_t o1heapGetBlockSize(void* const pointer);
 
 /// Set allocator index so that we can later identify which allocator creates the pointer.
-int o1heapBlockSetPoolIndex(void* pointer, uint32_t index);
-uint32_t o1heapBlockGetPoolIndex(void* const pointer);
+int32_t o1heapBlockSetPoolIndex(void* pointer, int32_t index);
+int32_t o1heapBlockGetPoolIndex(void* const pointer);
 bool o1heapIsValidPointer(void* const pointer);
 
 
