@@ -16,7 +16,7 @@ elements. It uses thread to index the free_pointers.
 namespace heaphook
 {
 constexpr size_t NUM_FREED_POINTERS_MAP_BUCKETS = 32;
-constexpr size_t MASK_OF_NUM_BUCKETS = 5; // 2^5 = 32
+constexpr size_t MASK_OF_NUM_BUCKETS = 31;
 
 using tid_t = int;
 
